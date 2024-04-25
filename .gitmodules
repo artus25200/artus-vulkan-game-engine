@@ -1,0 +1,3 @@
+[submodule "src/nicelog"]
+	path = src/nicelog
+	url = https://github.com/artus25200/nicelog
