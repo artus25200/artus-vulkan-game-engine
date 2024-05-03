@@ -4,7 +4,7 @@
 
 #ifndef AVGE_H_
 #define AVGE_H_
-#include "nicelog.h"
+#include "nicelog/nicelog.h"
 
 typedef enum { AVGE_ERROR, AVGE_WARN, AVGE_OK } AVGEStatus;
 
