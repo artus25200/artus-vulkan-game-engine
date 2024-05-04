@@ -25,7 +25,7 @@ TARGET := $(BIN_PATH)/$(TARGET_NAME)
 # src files & obj files
 SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
 OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
-
+LIBS := src/nicelog/nicelog.a
 # clean files list
 DISTCLEAN_LIST := $(OBJ) \
                   $(OBJ_DEBUG)
@@ -37,11 +37,14 @@ CLEAN_LIST := $(TARGET) \
 default: makedir all
 
 # non-phony targets
-$(TARGET): $(OBJ)
-	$(CC) $(LFLAGS) -o $@ $(OBJ)
+$(TARGET): $(OBJ) $(LIBS)
+	$(CC) $(LFLAGS) -o $@ $(OBJ) $(LIBS)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 	$(CC) $(COBJFLAGS) -o $@ $<
+
+$(LIBS):
+	make -C src/nicelog/
 
 # phony rules
 .PHONY: makedir
@@ -53,6 +56,7 @@ all: $(TARGET)
 
 .PHONY: clean
 clean:
+	@make clean -C src/nicelog/
 	@echo CLEAN $(CLEAN_LIST)
 	@rm -f $(CLEAN_LIST)
 

@@ -1,20 +1,32 @@
 #include "avge.h"
 #include "nicelog/nicelog.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(void) {
-  INFO("Starting app...");
-  App app;
-  BEGIN("Initializing app");
+  BEGIN("Initializing");
+  BEGIN("Initializing AVGE");
 
-  app.name = "ENGINE TEST APP";
-  app.version = "0.1.0";
-  NL_set_app_name(app.name);
-  INFO("Initialized app %s : %s", app.name, app.version);
+  if (!AVGE_initialize()) {
+    DONE(NL_ERROR);
+    return AVGE_ERROR;
+  }
+  DONE(NL_OK);
+
+  BEGIN("Initializing APP");
+  App *app = AVGE_create_application("TEST APP", "1.0.0");
+  if (app == NULL) {
+    DONE(NL_ERROR);
+    return AVGE_ERROR;
+  }
+  Logger *app_logger = AVGE_get_app_logger(app);
+
+  DONE(NL_OK);
   DONE(NL_OK);
 
   BEGIN("Running app");
-  ERROR("Not implemented.");
+  ERROR(app_logger, "Not implemented.");
   DONE(NL_SKIPPED);
 
-  return AVGE_OK;
+  return EXIT_SUCCESS;
 }
