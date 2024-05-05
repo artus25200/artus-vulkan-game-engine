@@ -25,10 +25,7 @@ makedir:
 
 incl:
 	$(eval INC := $(shell find . -name *.h))
-	for i in $(INC); do \
-		a=$${i}; \
-		ln $${i} include/$${a##*/}; \
-	done
+	$(foreach i, $(INC), $(shell ln -f $(i) include/$(notdir $(i))))
 	echo $(INCLUDE) > compile_flags.txt
 
 $(APP): $(APP_SRC)
@@ -36,8 +33,8 @@ $(APP): $(APP_SRC)
 
 $(LIB): $(LIB_SRC)
 	@-mkdir bin/tmp
-	$(foreach src, $^, ar x --output bin/tmp $(src))
-	ar rcs $@ bin/tmp/*.o
+	$(foreach src, $^, $(shell ar x --output bin/tmp $(src)))
+	ar rcs $@ $(pastsub %, bin/tmp/%, $(shell find bin/tmp -name *.o))
 	@rm -rf bin/tmp/
 
 %.a:

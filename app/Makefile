@@ -6,7 +6,7 @@
 
 SRC := $(shell find src -name *.c)
 OBJ_DIR := obj
-OBJ := $(pastsub %, $(OBJ_DIR)/%, $(notdir $(SRC:%.c=%.o)))
+OBJ := $(SRC:%.c=%.o)
 TARGET := bin/app.a
 
 default: clean makedir $(TARGET)
@@ -19,9 +19,9 @@ makedir:
 	@mkdir $(OBJ_DIR)
 
 $(TARGET): $(OBJ)
+	@echo $(OBJ)
 	ar rcs $@ $^
 
 %.o: %.c
-	$(CC) $(INCLUDE) -c $< -o $@
-
+	$(CC) $(INCLUDE) -c $< -o $(OBJ_DIR)/$(notdir $@)
 # end

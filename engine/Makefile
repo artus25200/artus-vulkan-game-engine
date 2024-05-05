@@ -5,7 +5,7 @@
 # @version 0.1
 SRC := $(shell find src -name *.c)
 OBJ_DIR := obj
-OBJ := $(pastsub %, $(OBJ_DIR)/%, $(notdir $(SRC:%.c=%.o)))
+OBJ := $(SRC:%.c=%.o)
 TARGET := bin/engine.a
 
 default: clean makedir $(TARGET)
@@ -18,8 +18,9 @@ makedir:
 	@mkdir $(OBJ_DIR)
 
 $(TARGET): $(OBJ)
-	ar rcs $@ $^
+	@echo $(OBJ)
+	ar rcs $@ $(foreach obj, $^, $(OBJ_DIR)/$(notdir $(obj)))
 
 %.o: %.c
-	$(CC) $(INCLUDE) -c $< -o $@
+	$(CC) $(INCLUDE) -c $< -o $(OBJ_DIR)/$(notdir $@)
 # end
