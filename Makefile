@@ -3,6 +3,7 @@
 #
 # @file
 # @version 0.1
+#
 CC := clang
 
 LIB := bin/AVGE.a
@@ -16,14 +17,21 @@ export CC
 
 default: clean makedir incl $(APP)
 
+.PHONY:silent
+silent:
+	@$(MAKE) > /dev/null
+
+.PHONY:clean
 clean:
 	rm -rf bin include
 
+.PHONY:makedir
 makedir:
 	@mkdir bin
 	@mkdir bin/tmp
 	@mkdir include
 
+.PHONY:incl
 incl:
 	$(eval INC := $(shell find . -name *.h))
 	$(foreach i, $(INC), $(shell ln -f $(i) include/$(notdir $(i))))
@@ -40,7 +48,8 @@ $(LIB): $(LIB_SRC)
 	$(MAKE) -C $(basename $(notdir $@))
 	mv $(basename $(notdir $@))/$@ $@
 
-run:
+.PHONY: run
+run: $(APP)
 	./$(APP)
 
 # end

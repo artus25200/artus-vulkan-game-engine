@@ -10,9 +10,11 @@ TARGET := bin/engine.a
 
 default: clean makedir $(TARGET)
 
+.PHONY: clean
 clean:
 	@-rm -rf bin $(OBJ_DIR)
 
+.PHONY: makedir
 makedir:
 	@mkdir bin
 	@mkdir $(OBJ_DIR)
