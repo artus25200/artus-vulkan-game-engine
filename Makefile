@@ -1,70 +1,47 @@
-# tool macros
-CC ?= clang # FILL: the compiler
-LFLAGS := -L/opt/local/lib -lglfw
-CFLAGS := -g -c -Wall -ggdb -O0 -I/opt/local/include -D ENGINE_DEBUG
-UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        CCFLAGS += -D LINUX 
-	LFLAGS += -lvulkan
-    endif
-    ifeq ($(UNAME_S),Darwin)
-        CCFLAGS += -D OSX 
-	LFLAGS += -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -lMoltenVK  -mmacosx-version-min=10.15
-    endif
-COBJFLAGS := $(CFLAGS) -c
+##
+# AVGE
+#
+# @file
+# @version 0.1
+CC := clang
 
-# path macros
-BIN_PATH := bin
-OBJ_PATH := obj
-SRC_PATH := src
+LIB := bin/AVGE.a
+APP := bin/AVGETestApp
+APP_SRC := bin/app.a bin/AVGE.a
+LIB_SRC := bin/engine.a bin/nicelog.a
 
-# compile macros
-TARGET_NAME := engine
-TARGET := $(BIN_PATH)/$(TARGET_NAME)
+INCLUDE := -I$(shell pwd)/include
+export INCLUDE
+export CC
 
-# src files & obj files
-SRC := $(foreach x, $(SRC_PATH), $(wildcard $(addprefix $(x)/*,.c*)))
-OBJ := $(addprefix $(OBJ_PATH)/, $(addsuffix .o, $(notdir $(basename $(SRC)))))
-LIBS := src/nicelog/nicelog.a
-# clean files list
-DISTCLEAN_LIST := $(OBJ) \
-                  $(OBJ_DEBUG)
-CLEAN_LIST := $(TARGET) \
-			  $(TARGET_DEBUG) \
-			  $(DISTCLEAN_LIST)
+default: clean makedir incl $(APP)
 
-# default rule
-default: makedir all
-
-# non-phony targets
-$(TARGET): $(OBJ) $(LIBS)
-	$(CC) $(LFLAGS) -o $@ $(OBJ) $(LIBS)
-
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
-	$(CC) $(COBJFLAGS) -o $@ $<
-
-$(LIBS):
-	make -C src/nicelog/
-
-# phony rules
-.PHONY: makedir
-makedir:
-	@mkdir -p $(BIN_PATH) $(OBJ_PATH) $(DBG_PATH)
-
-.PHONY: all
-all: $(TARGET)
-
-.PHONY: clean
 clean:
-	@make clean -C src/nicelog/
-	@echo CLEAN $(CLEAN_LIST)
-	@rm -f $(CLEAN_LIST)
+	rm -rf bin include
 
-.PHONY: distclean
-distclean:
-	@echo CLEAN $(DISTCLEAN_LIST)
-	@rm -f $(DISTCLEAN_LIST)
+makedir:
+	@mkdir bin
+	@mkdir include
 
-.PHONY: run
-run:
-	./bin/$(TARGET)
+incl:
+	$(eval INC := $(shell find . -name *.h))
+	for i in $(INC); do \
+		a=$${i}; \
+		ln $${i} include/$${a##*/}; \
+	done
+	echo $(INCLUDE) > compile_flags.txt
+
+$(APP): $(APP_SRC)
+	$(CC) -o $@ $^
+
+$(LIB): $(LIB_SRC)
+	@-mkdir bin/tmp
+	$(foreach src, $^, ar x --output bin/tmp $(src))
+	ar rcs $@ bin/tmp/*.o
+	@rm -rf bin/tmp/
+
+%.a:
+	$(MAKE) -C $(basename $(notdir $@))
+	mv $(basename $(notdir $@))/$@ $@
+
+# end

@@ -4,21 +4,15 @@
 
 #ifndef AVGE_H_
 #define AVGE_H_
-#include "nicelog/nicelog.h"
+#include <nicelog.h>
 
 typedef enum { AVGE_ERROR, AVGE_WARN, AVGE_OK } AVGEStatusCode;
-
+typedef enum { AVGE_EXIT_SUCCESS, AVGE_EXIT_FAILURE } AVGEExitCode;
 typedef struct Renderer Renderer;
 
 /***************************
 ** ENGINE
 ***************************/
-
-#ifdef ENGINE_C_
-Logger *AVGE_internal_logger;
-#else
-extern Logger *AVGE_internal_logger;
-#endif // ENGINE_C_
 
 AVGEStatusCode AVGE_initialize(void);
 

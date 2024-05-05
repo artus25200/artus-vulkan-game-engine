@@ -1,2 +1,1 @@
--I/opt/local/include
--I/usr/local/include
+-I/home/artus/programming/c/artus-vulkan-game-engine/include
