@@ -21,6 +21,7 @@ clean:
 
 makedir:
 	@mkdir bin
+	@mkdir bin/tmp
 	@mkdir include
 
 incl:
@@ -32,13 +33,14 @@ $(APP): $(APP_SRC)
 	$(CC) -o $@ $^
 
 $(LIB): $(LIB_SRC)
-	@-mkdir bin/tmp
 	$(foreach src, $^, $(shell ar x --output bin/tmp $(src)))
-	ar rcs $@ $(pastsub %, bin/tmp/%, $(shell find bin/tmp -name *.o))
-	@rm -rf bin/tmp/
+	ar rcs $@ $(shell find bin/tmp -name *.o)
 
 %.a:
 	$(MAKE) -C $(basename $(notdir $@))
 	mv $(basename $(notdir $@))/$@ $@
+
+run:
+	./$(APP)
 
 # end

@@ -20,7 +20,7 @@ makedir:
 
 $(TARGET): $(OBJ)
 	@echo $(OBJ)
-	ar rcs $@ $^
+	ar rcs $@ $(foreach obj, $^, $(OBJ_DIR)/$(notdir $(obj)))
 
 %.o: %.c
 	$(CC) $(INCLUDE) -c $< -o $(OBJ_DIR)/$(notdir $@)
