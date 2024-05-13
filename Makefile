@@ -9,7 +9,7 @@ CC := clang
 LIB := bin/AVGE.a
 APP := bin/AVGETestApp
 APP_SRC := bin/app.a bin/AVGE.a
-LIB_SRC := bin/engine.a bin/nicelog.a
+LIB_SRC := bin/core.a bin/nicelog.a
 
 INCLUDE := -I$(shell pwd)/include
 export INCLUDE
@@ -45,7 +45,7 @@ $(LIB): $(LIB_SRC)
 	ar rcs $@ $(shell find bin/tmp -name *.o)
 
 %.a:
-	$(MAKE) -C $(basename $(notdir $@))
+	$(MAKE) -C $(basename $(notdir $@)) TARGET=$@
 	mv $(basename $(notdir $@))/$@ $@
 
 .PHONY: run

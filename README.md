@@ -11,6 +11,6 @@ make && make run
 
 ## Modules
 
-- engine: the core engine
+- core: the core engine
 - nicelog: my logging library
 - app: a test app which uses this engine

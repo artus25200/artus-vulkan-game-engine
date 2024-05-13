@@ -6,7 +6,6 @@
 struct App {
   char *name;
   char *version;
-  Renderer *renderer;
   Logger *logger;
 };
 
@@ -25,7 +24,6 @@ App *AVGE_create_application(char *name, char *version) {
   app->logger = NL_create_logger(name);
   INFO(AVGE_state.logger, "Successfully initialized app \"%s\" %s", name,
        version);
-  // return AVGE_create_renderer(&app->renderer);
   return app;
 }
 

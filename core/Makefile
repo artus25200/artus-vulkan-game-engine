@@ -6,7 +6,7 @@
 SRC := $(shell find src -name *.c)
 OBJ_DIR := obj
 OBJ := $(SRC:%.c=%.o)
-TARGET := bin/engine.a
+#TARGET := bin/engine.a
 
 default: clean makedir $(TARGET)
 

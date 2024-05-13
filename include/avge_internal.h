@@ -1,6 +1,6 @@
 #ifndef INTERNAL_H_
 #define INTERNAL_H_
-#include "avge.h"
+#include <avge.h>
 #include <stdbool.h>
 
 struct EngineState {
