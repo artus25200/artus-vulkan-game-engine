@@ -146,6 +146,9 @@ void NL_phase_done(unsigned int info);
 */
 void NL_set_file_and_line(Logger *logger, int enable);
 
+// Self-explanatory
+int NL_get_log_level(Logger *logger);
+
 /*
 ** Example output when using NiceLog:
 */

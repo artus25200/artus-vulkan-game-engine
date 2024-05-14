@@ -12,13 +12,7 @@
 #endif
 #include <GLFW/glfw3.h>
 
-static const char *validationLayers[] = {"VK_LAYER_KHRONOS_validation", NULL};
-
-#ifdef ENGINE_DEBUG
-static const bool enableValidationLayers = true;
-#else
-static const bool enableValidationLayers = false;
-#endif
+static const char *validation_layers[] = {"VK_LAYER_KHRONOS_validation", NULL};
 
 static uint32_t deviceExtensionCount = 0;
 static const char *deviceExtension[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME, NULL};
@@ -37,7 +31,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
   return VK_FALSE;
 }
 
-void check_validation_layers(App *app) {
+AVGEStatusCode check_validation_layers(App *app, int *validation_layer_count) {
   INFO(AVGE_get_app_logger(app), "Checking Validation Layers...");
   uint32_t layerCount;
   vkEnumerateInstanceLayerProperties(&layerCount, NULL);
@@ -46,19 +40,22 @@ void check_validation_layers(App *app) {
   vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
 
   int i = 0;
-  while (validationLayers[i] != NULL) {
+  while (validation_layers[i] != NULL) {
     bool layerFound = false;
     for (int j = 0; j < layerCount; ++j) {
-      if (strcmp(validationLayers[i], availableLayers[j].layerName) == 0) {
+      if (strcmp(validation_layers[i], availableLayers[j].layerName) == 0) {
         layerFound = true;
       }
       if (!layerFound) {
         FATAL(AVGE_get_app_logger(app),
-              "Validation Layer \"%s\" not available !", validationLayers[i]);
+              "Validation Layer \"%s\" not available !", validation_layers[i]);
+        return AVGE_ERROR;
       }
     }
     ++i;
   }
+  *validation_layer_count = i;
+  return AVGE_OK;
 }
 
 struct QueueFamilyIndices {
@@ -144,8 +141,77 @@ void get_best_physical_device(VkPhysicalDevice *bestDevice,
     *bestDevice = devices[bestDeviceIndex];
 }
 
-AVGEStatusCode AVGE_initialize_vulkan() {
+char **get_extensions(bool enable_validation_layers, int *extension_count) {
+  uint32_t engineExtensionCount = 0;
+  const char *engineExtension[] = {
+      enable_validation_layers ? VK_EXT_DEBUG_UTILS_EXTENSION_NAME : NULL,
+      NULL};
+
+  uint32_t glfwExtensionCount = 0;
+  const char **glfwExtensions;
+
+  while (engineExtension[engineExtensionCount] != NULL) {
+    ++engineExtensionCount;
+  }
+
+  int total_extension_count = glfwExtensionCount + engineExtensionCount;
+  glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+  char **Extensions = malloc(sizeof(char *) * total_extension_count);
+
+  memcpy(Extensions, engineExtension, sizeof(char *) * engineExtensionCount);
+  memcpy(Extensions + engineExtensionCount, glfwExtensions,
+         sizeof(char *) * glfwExtensionCount);
+  *extension_count = total_extension_count;
+  return Extensions;
+}
+
+AVGEStatusCode AVGE_initialize_vulkan(App *app) {
   BEGIN("Initializing Vulkan");
+  int status = AVGE_OK;
+
+  uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
+  uint32_t app_version = app->version;
+  VkApplicationInfo application_info = {VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                                        NULL,
+                                        app->name,
+                                        app_version,
+                                        "AVGE",
+                                        engine_version,
+                                        VK_API_VERSION_1_3};
+
+  int validation_layer_count = 0;
+  bool enable_validation_layers = NL_get_log_level(app->logger) <= NL_DEBUG;
+  if (enable_validation_layers)
+    status = check_validation_layers(app, &validation_layer_count);
+  if (status != AVGE_OK)
+    return status;
+
+  VkInstanceCreateInfo instance_create_info = {
+      VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+      NULL,
+      0,
+      &application_info,
+      enable_validation_layers ? validation_layer_count : 0,
+      enable_validation_layers ? validation_layers : NULL,
+      0,
+      NULL};
+  instance_create_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+  int extension_count;
+  char **extensions =
+      get_extensions(enable_validation_layers, &extension_count);
+
+  instance_create_info.enabledExtensionCount = extension_count;
+  instance_create_info.ppEnabledExtensionNames = (const char **)extensions;
+
+  VkInstance vulkan_instance;
+  VkInstance instance;
+  if ((status = vkCreateInstance(&instance_create_info, NULL, &instance)) !=
+      VK_SUCCESS) {
+    FATAL(NULL, "Could not create VkInstance, error code : %d", status);
+    return AVGE_ERROR;
+  }
 
   return AVGE_ERROR; // TODO: NOT IMPLEMENTED
 }

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 int main(void) {
-  BEGIN("Initializing");
   BEGIN("Initializing AVGE");
 
   if (!AVGE_initialize()) {
@@ -14,16 +13,14 @@ int main(void) {
   DONE(NL_OK);
 
   BEGIN("Initializing APP");
-  App *app = AVGE_create_application("TEST APP", "1.0.0");
+  App *app = AVGE_create_application("TEST APP", AVGE_VERSION(1, 0, 0));
   if (app == NULL) {
-    DONE(NL_ABORTED);
     DONE(NL_ABORTED);
     return AVGE_EXIT_FAILURE;
   }
   Logger *app_logger = AVGE_get_app_logger(app);
 
-  DONE(NL_OK);
-  DONE(NL_OK);
+  DONE(NL_OK); // Initializing App
 
   BEGIN("Running app");
   ERROR(app_logger, "Not implemented.");

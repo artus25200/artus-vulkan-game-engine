@@ -1,15 +1,11 @@
 #include <avge.h>
 #include <avge_internal.h>
 #include <nicelog.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <vulkan/vulkan_core.h>
 
-struct App {
-  char *name;
-  char *version;
-  Logger *logger;
-};
-
-App *AVGE_create_application(char *name, char *version) {
+App *AVGE_create_application(char *name, uint32_t version) {
   if (!AVGE_state.initialized) {
     ERROR(NULL, "AVGE not initialized.");
     return NULL;
