@@ -24,5 +24,5 @@ $(TARGET): $(OBJ)
 	ar rcs $@ $(foreach obj, $^, $(OBJ_DIR)/$(notdir $(obj)))
 
 %.o: %.c
-	$(CC) $(INCLUDE) -c $< -o $(OBJ_DIR)/$(notdir $@)
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $(OBJ_DIR)/$(notdir $@)
 # end

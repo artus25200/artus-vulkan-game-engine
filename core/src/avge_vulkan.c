@@ -1,3 +1,4 @@
+#include "avge_internal.h"
 #include "nicelog.h"
 #include <avge.h>
 #include <stdbool.h>
@@ -11,6 +12,7 @@
 #include <vulkan/vulkan.h>
 #endif
 #include <GLFW/glfw3.h>
+#include <avge_internal.h>
 
 static const char *validation_layers[] = {"VK_LAYER_KHRONOS_validation", NULL};
 
@@ -32,7 +34,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
 }
 
 AVGEStatusCode check_validation_layers(App *app, int *validation_layer_count) {
-  INFO(AVGE_get_app_logger(app), "Checking Validation Layers...");
+  INFO(AVGE_state.logger, "Checking Vulkan Validation Layers...");
   uint32_t layerCount;
   vkEnumerateInstanceLayerProperties(&layerCount, NULL);
   VkLayerProperties *availableLayers =
@@ -47,8 +49,8 @@ AVGEStatusCode check_validation_layers(App *app, int *validation_layer_count) {
         layerFound = true;
       }
       if (!layerFound) {
-        FATAL(AVGE_get_app_logger(app),
-              "Validation Layer \"%s\" not available !", validation_layers[i]);
+        FATAL(AVGE_state.logger, "Validation Layer \"%s\" not available !",
+              validation_layers[i]);
         return AVGE_ERROR;
       }
     }
@@ -144,6 +146,7 @@ void get_best_physical_device(VkPhysicalDevice *bestDevice,
 char **get_extensions(bool enable_validation_layers, int *extension_count) {
   uint32_t engineExtensionCount = 0;
   const char *engineExtension[] = {
+      VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
       enable_validation_layers ? VK_EXT_DEBUG_UTILS_EXTENSION_NAME : NULL,
       NULL};
 
@@ -164,6 +167,36 @@ char **get_extensions(bool enable_validation_layers, int *extension_count) {
          sizeof(char *) * glfwExtensionCount);
   *extension_count = total_extension_count;
   return Extensions;
+}
+
+AVGEStatusCode create_debug_callback(bool enable_validation_layers,
+                                     VkInstance instance) {
+  int error_code;
+  PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyUtilsMessengerEXT;
+  VkDebugUtilsMessengerEXT debugMessenger;
+  if (enable_validation_layers) {
+    VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo = {0};
+    messengerCreateInfo.sType =
+        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    messengerCreateInfo.messageSeverity = 0x1111;
+    messengerCreateInfo.messageType = 1 | 2 | 4;
+    messengerCreateInfo.pfnUserCallback = debug_callback;
+    messengerCreateInfo.pUserData = NULL;
+    PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT =
+        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            instance, "vkCreateDebugUtilsMessengerEXT");
+    pfnVkDestroyUtilsMessengerEXT =
+        (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            instance, "vkDestroyDebugUtilsMessengerEXT");
+    if ((error_code = pfnVkCreateDebugUtilsMessengerEXT(
+             instance, &messengerCreateInfo, NULL, &debugMessenger)) !=
+        VK_SUCCESS) {
+      FATAL(AVGE_state.logger,
+            "Could not create debug messenger ! error code : %d", error_code);
+      return AVGE_ERROR;
+    }
+  }
+  return AVGE_OK;
 }
 
 AVGEStatusCode AVGE_initialize_vulkan(App *app) {
@@ -205,13 +238,19 @@ AVGEStatusCode AVGE_initialize_vulkan(App *app) {
   instance_create_info.enabledExtensionCount = extension_count;
   instance_create_info.ppEnabledExtensionNames = (const char **)extensions;
 
-  VkInstance vulkan_instance;
-  VkInstance instance;
-  if ((status = vkCreateInstance(&instance_create_info, NULL, &instance)) !=
-      VK_SUCCESS) {
-    FATAL(NULL, "Could not create VkInstance, error code : %d", status);
+  if ((status = vkCreateInstance(&instance_create_info, NULL,
+                                 &app->vulkan_instance)) != VK_SUCCESS) {
+    FATAL(AVGE_state.logger, "Could not create VkInstance, error code : %d",
+          status);
+    DONE(NL_ABORTED);
     return AVGE_ERROR;
   }
 
+  if (!create_debug_callback(enable_validation_layers, app->vulkan_instance))
+    return AVGE_ERROR;
+
+  AVGE_state.vulkan_initialized = true;
+  INFO(AVGE_state.logger, "Successfully initialized Vulkan");
+  DONE(NL_OK);
   return AVGE_ERROR; // TODO: NOT IMPLEMENTED
 }
