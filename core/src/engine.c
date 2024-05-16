@@ -2,6 +2,7 @@
 #include <nicelog.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define ENGINE_C_
 #include <avge_internal.h>
@@ -19,10 +20,19 @@ void check_for_logger() {
 AVGEStatusCode AVGE_initialize_engine(App *app) {
   BEGIN("Initializing AVGE");
   check_for_logger();
-  AVGE_initialize_glfw();
-  AVGE_initialize_vulkan(app);
+  if (!AVGE_initialize_glfw() || !AVGE_initialize_vulkan(app)) {
+    FATAL(AVGE_state.logger, "Could not initialize AVGE !");
+    DONE(NL_ABORTED);
+    return AVGE_ERROR;
+  }
   AVGE_state.engine_initialized = true;
   INFO(AVGE_state.logger, "Successfully initialized AVGE");
   DONE(NL_OK);
   return AVGE_OK;
+}
+
+void AVGE_terminate_engine() {
+  AVGE_print_memory_debug();
+  AVGE_free_all();
+  AVGE_print_memory_debug();
 }

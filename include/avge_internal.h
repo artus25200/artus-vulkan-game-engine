@@ -1,6 +1,5 @@
 #ifndef INTERNAL_H_
 #define INTERNAL_H_
-#include <avge.h>
 #include <nicelog.h>
 #include <stdbool.h>
 

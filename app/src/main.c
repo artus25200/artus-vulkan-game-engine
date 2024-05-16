@@ -1,3 +1,4 @@
+#include <GLFW/glfw3.h>
 #include <avge.h>
 #include <nicelog.h>
 #include <stdio.h>
@@ -13,7 +14,6 @@ int main(void) {
   DONE(NL_OK);
 
   if (!AVGE_initialize_engine(app)) {
-    DONE(NL_ERROR);
     return AVGE_EXIT_FAILURE;
   }
 
@@ -21,5 +21,11 @@ int main(void) {
   AVGE_create_window(app, 800, 600, app->name);
   DONE(NL_OK);
 
+  /*while (!glfwWindowShouldClose(app->glfw_window)) {
+    glfwPollEvents();
+    glfwSwapBuffers(app->glfw_window);
+  }*/
+
+  AVGE_terminate_engine();
   return AVGE_EXIT_SUCCESS;
 }

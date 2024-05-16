@@ -27,20 +27,24 @@ AVGEStatusCode AVGE_create_window(App *app, int width, int height, char *name) {
 #ifdef OSX
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // Mac
 #endif                                                   // OSX
-  GLFWwindow *window = glfwCreateWindow(800, 600, "Vulkan Engine",
-                                        glfwGetPrimaryMonitor(), NULL);
-  if (!window) {
+  app->glfw_window = glfwCreateWindow(800, 600, "Vulkan Engine",
+                                      glfwGetPrimaryMonitor(), NULL);
+  if (!app->glfw_window) {
     FATAL(AVGE_state.logger, "Could not create window ! error code : %d",
           glfwGetError(NULL));
     return AVGE_ERROR;
   }
-  app->glfw_window = window;
-  if ((error_code = glfwCreateWindowSurface(app->vulkan_instance, window, NULL,
-                                            &app->vulkan_surface)) !=
-      VK_SUCCESS) {
+  if ((error_code =
+           glfwCreateWindowSurface(app->vulkan_instance, app->glfw_window, NULL,
+                                   &app->vulkan_surface)) != VK_SUCCESS) {
+    const char *err;
+    glfwGetError(&err);
     FATAL(AVGE_state.logger,
-          "Could not create window surface ! error code : %d", error_code);
+          "Could not create window surface ! Error code: %d. GLFW Error: %s",
+          error_code, err);
+    return AVGE_ERROR;
   }
+  glfwShowWindow(app->glfw_window);
   return AVGE_OK;
 }
 

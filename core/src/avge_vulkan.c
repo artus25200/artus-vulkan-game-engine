@@ -6,6 +6,7 @@
 #include <string.h>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_wayland.h>
 #ifdef OSX
 #define GLFW_INCLUDE_VULKAN
 #else
@@ -57,6 +58,7 @@ AVGEStatusCode check_validation_layers(App *app, int *validation_layer_count) {
     ++i;
   }
   *validation_layer_count = i;
+  INFO(AVGE_state.logger, "Vulkan Validation Layers OK");
   return AVGE_OK;
 }
 
@@ -147,6 +149,7 @@ char **get_extensions(bool enable_validation_layers, int *extension_count) {
   uint32_t engineExtensionCount = 0;
   const char *engineExtension[] = {
       VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME,
+      VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
       enable_validation_layers ? VK_EXT_DEBUG_UTILS_EXTENSION_NAME : NULL,
       NULL};
 
@@ -157,8 +160,8 @@ char **get_extensions(bool enable_validation_layers, int *extension_count) {
     ++engineExtensionCount;
   }
 
-  int total_extension_count = glfwExtensionCount + engineExtensionCount;
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+  int total_extension_count = glfwExtensionCount + engineExtensionCount;
 
   char **Extensions = malloc(sizeof(char *) * total_extension_count);
 
@@ -246,11 +249,12 @@ AVGEStatusCode AVGE_initialize_vulkan(App *app) {
     return AVGE_ERROR;
   }
 
-  if (!create_debug_callback(enable_validation_layers, app->vulkan_instance))
+  if (!create_debug_callback(enable_validation_layers, app->vulkan_instance)) {
+    DONE(NL_ABORTED);
     return AVGE_ERROR;
-
+  }
   AVGE_state.vulkan_initialized = true;
   INFO(AVGE_state.logger, "Successfully initialized Vulkan");
   DONE(NL_OK);
-  return AVGE_ERROR; // TODO: NOT IMPLEMENTED
+  return AVGE_OK; // TODO: NOT IMPLEMENTED
 }
