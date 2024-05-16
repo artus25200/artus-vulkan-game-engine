@@ -50,7 +50,7 @@ void AVGE_mem_add(void *ptr, char *file, int line, size_t size,
         FATAL(AVGE_state.logger,
               "Failed to realloc() memory blocks on line %d in file %s", line,
               file);
-        exit(AVGE_EXIT_FAILURE);
+        AVGE_exit(AVGE_EXIT_FAILURE);
       }
     }
     mem_allocs[i].mem_blocks[mem_allocs[i].allocated].ptr = ptr;
@@ -82,7 +82,7 @@ void *AVGE_malloc(size_t size, char *file, uint line, const char *func) {
   if (!ptr) {
     FATAL(AVGE_state.logger,
           "Could not malloc() memory on line %d int file %s !", line, file);
-    exit(AVGE_EXIT_FAILURE);
+    AVGE_exit(AVGE_EXIT_FAILURE);
   }
   AVGE_mem_add(ptr, file, line, size, func);
   return ptr;
@@ -118,8 +118,8 @@ void AVGE_print_memory_debug() {
           "Total freed: %d",
           mem_allocs[i].size, mem_allocs[i].allocated,
           mem_allocs[i].total_allocated, mem_allocs[i].total_freed);
-    DEBUG(AVGE_state.logger,
-          "-------------------------------------------------------");
+    DEBUG(AVGE_state.logger, "-------------------------------------------------"
+                             "-------------------------");
   }
   DONE(NL_OK);
 }

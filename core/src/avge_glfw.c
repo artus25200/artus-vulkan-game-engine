@@ -53,12 +53,12 @@ AVGEStatusCode AVGE_initialize_glfw() {
   if (glfwInit() != GLFW_TRUE) {
     FATAL(AVGE_state.logger, "Could not initialize GLFW ! error code : %d",
           glfwGetError(NULL));
-    DONE(NL_ABORTED);
+    DONE(NL_CANCELED);
     return AVGE_ERROR;
   }
   if (glfwVulkanSupported() != GLFW_TRUE) {
     FATAL(AVGE_state.logger, "Vulkan is not supported by GLFW");
-    DONE(NL_ABORTED);
+    DONE(NL_CANCELED);
     return AVGE_ERROR;
   }
   INFO(AVGE_state.logger, "Successfully initialized GLFW %s",

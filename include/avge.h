@@ -43,6 +43,7 @@ typedef struct App {
 
 AVGEStatusCode AVGE_initialize_engine(App *app);
 void AVGE_terminate_engine();
+void AVGE_exit(int exit_code);
 
 /***************************
 ** MEMORY

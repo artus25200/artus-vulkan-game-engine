@@ -8,7 +8,7 @@ int main(void) {
   BEGIN("Initializing APP");
   App *app = AVGE_create_application("TEST APP", AVGE_VERSION(1, 0, 0));
   if (app == NULL) {
-    DONE(NL_ABORTED);
+    DONE(NL_CANCELED);
     return AVGE_EXIT_FAILURE;
   }
   DONE(NL_OK);

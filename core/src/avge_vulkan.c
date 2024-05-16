@@ -245,12 +245,12 @@ AVGEStatusCode AVGE_initialize_vulkan(App *app) {
                                  &app->vulkan_instance)) != VK_SUCCESS) {
     FATAL(AVGE_state.logger, "Could not create VkInstance, error code : %d",
           status);
-    DONE(NL_ABORTED);
+    DONE(NL_CANCELED);
     return AVGE_ERROR;
   }
 
   if (!create_debug_callback(enable_validation_layers, app->vulkan_instance)) {
-    DONE(NL_ABORTED);
+    DONE(NL_CANCELED);
     return AVGE_ERROR;
   }
   AVGE_state.vulkan_initialized = true;

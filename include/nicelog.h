@@ -26,7 +26,7 @@
 */
 #define BEGIN(text) NL_phase_begin(text)
 #define DONE(info) NL_phase_done(info)
-
+#define DONE_ALL(info) NL_phase_done_all(info);
 /*
 ** Used by NiceLog to print Nice logs.
 */
@@ -66,7 +66,7 @@ enum { NL_DISABLE = 0, NL_ENABLE };
 enum StageInfo {
   NL_OK,
   NL_SKIPPED,
-  NL_ABORTED,
+  NL_CANCELED,
 
   NL_ENUM_STAGE_INFO_COUNT
 };
@@ -131,12 +131,12 @@ void NL_phase_begin(char *stage);
 
 /*
 ** Funtion to use when an important step/action is done
-** There can be several outcomes (NL_OK, NL_SKIPPED, NL_ABORTED)
+** There can be several outcomes (NL_OK, NL_SKIPPED, NL_CANCELED)
 **
 ** @param info The outcome.
 */
 void NL_phase_done(unsigned int info);
-
+void NL_phase_done_all(unsigned int info);
 /*
 ** Function to enable or disable showing the line and file where the log has
 ** been printed. Default: enabled.

@@ -22,13 +22,23 @@ AVGEStatusCode AVGE_initialize_engine(App *app) {
   check_for_logger();
   if (!AVGE_initialize_glfw() || !AVGE_initialize_vulkan(app)) {
     FATAL(AVGE_state.logger, "Could not initialize AVGE !");
-    DONE(NL_ABORTED);
+    DONE(NL_CANCELED);
     return AVGE_ERROR;
   }
   AVGE_state.engine_initialized = true;
   INFO(AVGE_state.logger, "Successfully initialized AVGE");
   DONE(NL_OK);
   return AVGE_OK;
+}
+
+void AVGE_exit(int exit_code) {
+  if (exit_code == 0) {
+    DONE_ALL(NL_OK);
+  } else {
+    DONE_ALL(NL_CANCELED);
+  }
+  AVGE_terminate_engine();
+  exit(exit_code);
 }
 
 void AVGE_terminate_engine() {
