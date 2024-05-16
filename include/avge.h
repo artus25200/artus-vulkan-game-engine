@@ -7,12 +7,17 @@
 #include <GLFW/glfw3.h>
 #include <nicelog.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <vulkan/vulkan_core.h>
-
 #define AVGE_VERSION(major, minor, patch) VK_MAKE_VERSION(major, minor, patch)
 
 typedef enum { AVGE_ERROR = 0, AVGE_OK = 1, AVGE_WARN = 2 } AVGEStatusCode;
 typedef enum { AVGE_EXIT_SUCCESS, AVGE_EXIT_FAILURE } AVGEExitCode;
+
+#ifndef NO_MALLOC_REDEF
+#define malloc(size) AVGE_malloc(size, __FILE__, __LINE__, __func__);
+#define free(ptr) AVGE_free(ptr)
+#endif
 
 typedef struct App {
   char *name;
@@ -37,6 +42,15 @@ typedef struct App {
 ***************************/
 
 AVGEStatusCode AVGE_initialize_engine(App *app);
+void AVGE_terminate_engine();
+
+/***************************
+** MEMORY
+***************************/
+void *AVGE_malloc(size_t size, char *file, uint line, const char *func);
+void AVGE_free(void *ptr);
+void AVGE_free_all();
+void AVGE_print_memory_debug();
 
 /***************************
 ** APP
