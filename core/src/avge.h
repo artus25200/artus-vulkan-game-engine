@@ -4,11 +4,13 @@
 
 #ifndef AVGE_H_
 #define AVGE_H_
+
 #include <GLFW/glfw3.h>
 #include <nicelog.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <vulkan/vulkan_core.h>
+
 #define AVGE_VERSION(major, minor, patch) VK_MAKE_VERSION(major, minor, patch)
 
 typedef enum { AVGE_ERROR = 0, AVGE_OK = 1, AVGE_WARN = 2 } AVGEStatusCode;
@@ -48,10 +50,12 @@ void AVGE_exit(int exit_code);
 /***************************
 ** MEMORY
 ***************************/
+
 void *AVGE_malloc(size_t size, char *file, uint line, const char *func);
 void AVGE_free(void *ptr);
 void AVGE_free_all();
 void AVGE_print_memory_debug();
+uint AVGE_get_memory_usage_in_bytes();
 
 /***************************
 ** APP
